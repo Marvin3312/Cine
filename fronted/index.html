@@ -18,6 +18,37 @@
         </section>
     </main>
 
+    <!-- Modal para actualizar horario de función -->
+    <div class="modal fade" id="updateShowtimeModal" tabindex="-1" role="dialog" aria-labelledby="updateShowtimeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateShowtimeModalLabel">Actualizar Horario de Función</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateShowtimeForm">
+                        <div class="form-group">
+                            <label for="movieTitleInput">Título de la Película</label>
+                            <input type="text" class="form-control" id="movieTitleInput" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="showtimeInput">Horario</label>
+                            <input type="text" class="form-control" id="showtimeInput" required>
+                        </div>
+                        <input type="hidden" id="showtimeIdInput">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveShowtimeChanges()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

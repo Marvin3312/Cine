@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
+    let showtimeId; // Definimos showtimeId en un alcance más amplio para que sea accesible globalmente
+
     const urlParams = new URLSearchParams(window.location.search);
     const hallId = urlParams.get('hall_id');
-    const showtimeId = urlParams.get('showtime_id');
-    
+    showtimeId = urlParams.get('showtime_id'); // Asignamos showtimeId desde los parámetros de la URL
+
     if (hallId && showtimeId) {
         fetchHallDetails(hallId);
         fetchSoldSeats(showtimeId);
@@ -15,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('cancel-button').addEventListener('click', function() {
-        resetSeatSelection();
+        resetSeatSelection(showtimeId); // Pasamos showtimeId como parámetro a resetSeatSelection
     });
 });
 
@@ -133,15 +135,13 @@ function purchaseTickets(hallId, showtimeId) {
     .then(data => {
         alert('¡Compra realizada con éxito!');
         console.log('Respuesta del servidor:', data);
-        resetSeatSelection(); // Reiniciar selección de asientos
+        //resetSeatSelection(showtimeId); // Reiniciar selección de asientos y eliminar todos los tickets
         fetchSoldSeats(showtimeId); // Actualizar asientos vendidos
     })
     .catch(error => console.error('Error al realizar la compra:', error));
 }
 
-
-
-function resetSeatSelection() {
+function resetSeatSelection(showtimeId) {
     const seatButtons = document.querySelectorAll('.btn-seat');
     seatButtons.forEach(button => {
         button.classList.remove('btn-success');
@@ -149,4 +149,24 @@ function resetSeatSelection() {
         button.disabled = false;
     });
     selectedSeats = [];
+
+    // Llamada para eliminar todos los tickets de la sala en la base de datos
+    deleteAllTickets(showtimeId);
+}
+
+function deleteAllTickets(showtimeId) {
+    fetch(`http://127.0.0.1:5000/api/tickets/delete/all/${showtimeId}`, {
+        method: 'DELETE',
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Todos los tickets eliminados exitosamente:', data);
+        fetchSoldSeats(showtimeId); // Actualizamos la visualización de los asientos vendidos
+    })
+    .catch(error => console.error('Error al eliminar todos los tickets:', error));
 }

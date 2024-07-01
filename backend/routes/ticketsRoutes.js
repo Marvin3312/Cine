@@ -75,7 +75,35 @@ router.delete('/delete/:seat_id', (req, res) => {
             res.status(500).json({ error: 'Error al eliminar ticket' });
             return;
         }
-        res.json({ message: 'Ticket cancelado exitosamente', deletedRows: result.affectedRows });
+
+        if (result.affectedRows > 0) {
+            res.json({ message: 'Ticket cancelado exitosamente' });
+        } else {
+            res.status(404).json({ error: 'No se encontró ningún ticket con el ID de asiento proporcionado' });
+        }
+    });
+});
+
+// POST - Liberar asientos seleccionados
+router.post('/release', (req, res) => {
+    const { seats, showtime_id } = req.body;
+
+    // Validar que se hayan seleccionado asientos
+    if (!Array.isArray(seats) || seats.length === 0) {
+        return res.status(400).json({ error: 'No se han seleccionado asientos' });
+    }
+
+    // Construir el query para eliminar los tickets de los asientos seleccionados
+    const sqlDeleteTickets = 'DELETE FROM tickets WHERE showtime_id = ? AND seat_id IN (?)';
+    const values = [showtime_id, seats];
+
+    // Eliminar los tickets de la base de datos
+    db.query(sqlDeleteTickets, values, (err, result) => {
+        if (err) {
+            console.error('Error al liberar asientos en la base de datos:', err);
+            return res.status(500).json({ error: 'Error al liberar asientos en la base de datos' });
+        }
+        res.status(200).json({ message: 'Asientos liberados exitosamente', deletedRows: result.affectedRows });
     });
 });
 
@@ -92,4 +120,21 @@ router.get('/', (req, res) => {
         res.json(result);
     });
 });
+
+// DELETE - Eliminar todos los tickets de una sala específica
+router.delete('/delete/all/:showtime_id', (req, res) => {
+    const { showtime_id } = req.params;
+
+    const sqlDeleteTickets = 'DELETE FROM tickets WHERE showtime_id = ?';
+    db.query(sqlDeleteTickets, [showtime_id], (err, result) => {
+        if (err) {
+            console.error('Error al eliminar todos los tickets:', err);
+            res.status(500).json({ error: 'Error al eliminar todos los tickets' });
+            return;
+        }
+
+        res.json({ message: `Todos los tickets del showtime_id ${showtime_id} han sido eliminados exitosamente`, deletedRows: result.affectedRows });
+    });
+});
+
 module.exports = router;

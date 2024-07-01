@@ -80,4 +80,27 @@ router.delete('/:id', (req, res) => {
     });
 });
 
+// GET - Obtener un horario de función por ID
+router.get('/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = `
+        SELECT s.*, m.title AS movie_title, h.name AS hall_name
+        FROM showtimes s
+        INNER JOIN movies m ON s.movie_id = m.id
+        INNER JOIN halls h ON s.hall_id = h.id
+        WHERE s.id = ?
+    `;
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error('Error al obtener horario de función:', err);
+            res.status(500).json({ error: 'Error al obtener horario de función' });
+            return;
+        }
+        if (result.length === 0) {
+            res.status(404).json({ error: 'Horario de función no encontrado' });
+            return;
+        }
+        res.json(result[0]);
+    });
+});
 module.exports = router;
