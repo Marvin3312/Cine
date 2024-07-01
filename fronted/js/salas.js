@@ -1,32 +1,27 @@
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
-    const hallId = urlParams.get('id');
-    const showtimeId = urlParams.get('showtime_id'); // Obtener showtime_id de la URL
+    const hallId = urlParams.get('hall_id');
+    const showtimeId = urlParams.get('showtime_id');
+    
     if (hallId && showtimeId) {
-        fetchHallDetails(hallId, showtimeId);
+        fetchHallDetails(hallId);
+        fetchSoldSeats(showtimeId);
     } else {
         console.error('No se encontraron hallId o showtimeId en los parámetros de la URL');
     }
 
-    // Añadir evento al botón de compra
     document.getElementById('purchase-button').addEventListener('click', function() {
         purchaseTickets(hallId, showtimeId);
     });
 
-    // Añadir evento al botón de cancelación
     document.getElementById('cancel-button').addEventListener('click', function() {
-        cancelTickets(hallId, showtimeId);
-    });
-
-    // Añadir evento al botón de volver
-    document.getElementById('back-button').addEventListener('click', function() {
-        window.history.back();
+        resetSeatSelection();
     });
 });
 
 let selectedSeats = [];
 
-function fetchHallDetails(hallId, showtimeId) {
+function fetchHallDetails(hallId) {
     fetch(`http://127.0.0.1:5000/api/halls/${hallId}`)
         .then(response => {
             if (!response.ok) {
@@ -35,13 +30,24 @@ function fetchHallDetails(hallId, showtimeId) {
             return response.json();
         })
         .then(data => {
-            const seatCapacity = data.seat_capacity;
-            fetchSoldSeats(showtimeId, seatCapacity);
+            const hallDetailsContainer = document.getElementById('hall-details-container');
+            if (hallDetailsContainer) {
+                hallDetailsContainer.innerHTML = `
+                    <div class="col-md-6">
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">${data.name}</h5>
+                                <p class="card-text">Capacidad: ${data.seat_capacity}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
         })
         .catch(error => console.error('Error fetching hall details:', error));
 }
 
-function fetchSoldSeats(showtimeId, seatCapacity) {
+function fetchSoldSeats(showtimeId) {
     fetch(`http://127.0.0.1:5000/api/tickets/sold/${showtimeId}`)
         .then(response => {
             if (!response.ok) {
@@ -51,17 +57,20 @@ function fetchSoldSeats(showtimeId, seatCapacity) {
         })
         .then(data => {
             const soldSeats = data.soldSeats;
-            createSeats(seatCapacity, soldSeats);
+            const hallCapacity = document.getElementById('hall-details-container').querySelector('.card-text');
+            createSeats(hallCapacity, soldSeats);
         })
         .catch(error => console.error('Error fetching sold seats:', error));
 }
 
-function createSeats(seatCapacity, soldSeats) {
+function createSeats(hallCapacity, soldSeats) {
     const seatsContainer = document.getElementById('seats-container');
+    const capacity = parseInt(hallCapacity.textContent.split(": ")[1]);
+    
     if (seatsContainer) {
         seatsContainer.innerHTML = ''; // Limpiar el contenedor antes de agregar los nuevos datos
 
-        for (let seatNumber = 1; seatNumber <= seatCapacity; seatNumber++) {
+        for (let seatNumber = 1; seatNumber <= capacity; seatNumber++) {
             const seatButton = document.createElement('button');
             seatButton.classList.add('btn', 'btn-seat', 'm-1');
             seatButton.innerHTML = `Asiento ${seatNumber}`;
@@ -103,10 +112,9 @@ function purchaseTickets(hallId, showtimeId) {
     }
 
     const requestData = {
-        hall_id: hallId,
-        seats: selectedSeats,
-        showtime_id: showtimeId,
-        price: 100 // Este es un ejemplo, puedes cambiarlo según tus requerimientos
+        showtime_id: parseInt(showtimeId),
+        seats: selectedSeats.map(seat => parseInt(seat)),
+        price: 100, // Puedes ajustar el precio según tus requerimientos
     };
 
     fetch('http://127.0.0.1:5000/api/tickets', {
@@ -125,34 +133,20 @@ function purchaseTickets(hallId, showtimeId) {
     .then(data => {
         alert('¡Compra realizada con éxito!');
         console.log('Respuesta del servidor:', data);
-        fetchHallDetails(hallId, showtimeId); // Refrescar la lista de asientos
+        resetSeatSelection(); // Reiniciar selección de asientos
+        fetchSoldSeats(showtimeId); // Actualizar asientos vendidos
     })
     .catch(error => console.error('Error al realizar la compra:', error));
 }
 
-function cancelTickets(hallId, showtimeId) {
-    const seatNumber = selectedSeats.pop();
-    if (!seatNumber) {
-        alert('No hay asientos seleccionados para cancelar.');
-        return;
-    }
 
-    fetch(`http://127.0.0.1:5000/api/tickets/delete/${seatNumber}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        alert('¡Cancelación realizada con éxito!');
-        console.log('Respuesta del servidor:', data);
-        fetchHallDetails(hallId, showtimeId); // Refrescar la lista de asientos
-    })
-    .catch(error => console.error('Error al realizar la cancelación:', error));
+
+function resetSeatSelection() {
+    const seatButtons = document.querySelectorAll('.btn-seat');
+    seatButtons.forEach(button => {
+        button.classList.remove('btn-success');
+        button.classList.add('btn-danger');
+        button.disabled = false;
+    });
+    selectedSeats = [];
 }

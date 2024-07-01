@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CineTavsa - Sala de Cine</title>
+    <title>CineTavsa - Seleccionar Asientos</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -12,13 +12,17 @@
         <h1>CineTavsa</h1>
     </header>
     <main class="container">
-        <section id="seats-section">
-            <h2>Sala de Cine</h2>
-            <div id="seats-container" class="row justify-content-center"></div>
-            <a href="salas.html?id=1&showtime_id=2">Seleccionar asientos</a>
+        <section id="hall-details-section">
+            <h2>Detalles de la Sala</h2>
+            <div id="hall-details-container" class="row"></div>
+        </section>
 
-            <button id="purchase-button" class="btn btn-primary mt-3">Comprar Entradas</button>
-            <a href="index.html" class="btn btn-secondary mt-3">Regresar</a>
+        <section id="seats-section">
+            <h2>Seleccionar Asientos</h2>
+            <div id="seats-container" class="row"></div>
+            <button id="purchase-button" class="btn btn-primary mt-3">Comprar Tickets</button>
+            <button id="cancel-button" class="btn btn-secondary mt-3 ml-2">Cancelar Selección</button>
+            <a href="index.html" class="btn btn-link mt-3 ml-auto">Volver a Cartelera</a>
         </section>
     </main>
 
