@@ -1,6 +1,6 @@
 # Cine
 Proyecto desarrollado para administrar un cine, donde permite ver las carteleras disponibles adquirir boletos para determinada sala de cine
-<h2>La insercion de  los datos de la tabla:
+<h2>La insercion de  los datos de la tabla:</h2>
 -- Inserts para la Sala 1
 INSERT INTO seats (hall_id, seat_row, seat_number) VALUES
 (1, 'Fila 1', 1), (1, 'Fila 1', 2), (1, 'Fila 1', 3), (1, 'Fila 1', 4),
@@ -31,5 +31,4 @@ INSERT INTO seats (hall_id, seat_row, seat_number) VALUES
 (4, 'Fila 1', 5), (4, 'Fila 1', 6), (4, 'Fila 1', 7), (4, 'Fila 1', 8),
 (4, 'Fila 1', 9), (4, 'Fila 1', 10), (4, 'Fila 2', 1), (4, 'Fila 2', 2),
 (4, 'Fila 2', 3), (4, 'Fila 2', 4), (4, 'Fila 2', 5), (4, 'Fila 2', 6),
-(4, 'Fila 2
-</h2>
+(4, 'Fila 2', 7), (4, 'Fila 2', 8), (4, 'Fila 2', 9), (4, 'Fila 2', 10);
